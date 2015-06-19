@@ -1,0 +1,9 @@
+build
+rt-thread
+*.pyc
+*.o
+*~
+*.map
+*.bin
+.sconsign.dblite
+
