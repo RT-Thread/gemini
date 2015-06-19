@@ -148,8 +148,6 @@ void rt_hw_trap_irq(void)
     fullir = arm_gic_get_active_irq(0);
     ir = fullir & GIC_ACK_INTID_MASK;
 
-    rt_kprintf("irq!!!!\n");
-
     if (ir == 1023)
     {
         /* Spurious interrupt */

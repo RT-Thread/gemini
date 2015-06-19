@@ -33,19 +33,12 @@ rt_uint32_t rt_interrupt_from_thread;
 rt_uint32_t rt_interrupt_to_thread;
 rt_uint32_t rt_thread_switch_interrupt_flag;
 
-const unsigned int VECTOR_BASE = 0x00;
 extern void rt_cpu_vector_set_base(unsigned int addr);
 extern int system_vectors;
 
 static void rt_hw_vector_init(void)
 {
-#ifndef RT_USING_VMM
-    unsigned int *dest = (unsigned int *)VECTOR_BASE;
-    unsigned int *src =  (unsigned int *)&system_vectors;
-
-    rt_memcpy(dest, src, 16 * 4);
-    rt_cpu_vector_set_base(VECTOR_BASE);
-#endif
+    rt_cpu_vector_set_base((unsigned int)&system_vectors);
 }
 
 /**

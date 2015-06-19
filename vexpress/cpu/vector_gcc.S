@@ -21,7 +21,6 @@
  * Date           Author       Notes
  * 2013-07-05     Bernard      the first version
  */
-#include <rtconfig.h>
 
 .section .vectors, "ax"
 .code 32

@@ -18,9 +18,9 @@
 
 #include "board.h"
 
-#define TIMER_LOAD(hw_base)              __REG32(hw_base + 0x00)
-#define TIMER_VALUE(hw_base)             __REG32(hw_base + 0x04)
-#define TIMER_CTRL(hw_base)              __REG32(hw_base + 0x08)
+#define TIMER_LOAD(hw_base)     __REG32(hw_base + 0x00)
+#define TIMER_VALUE(hw_base)    __REG32(hw_base + 0x04)
+#define TIMER_CTRL(hw_base)     __REG32(hw_base + 0x08)
 #define TIMER_CTRL_ONESHOT      (1 << 0)
 #define TIMER_CTRL_32BIT        (1 << 1)
 #define TIMER_CTRL_DIV1         (0 << 2)
@@ -30,14 +30,14 @@
 #define TIMER_CTRL_PERIODIC     (1 << 6)
 #define TIMER_CTRL_ENABLE       (1 << 7)
 
-#define TIMER_INTCLR(hw_base)            __REG32(hw_base + 0x0c)
-#define TIMER_RIS(hw_base)               __REG32(hw_base + 0x10)
-#define TIMER_MIS(hw_base)               __REG32(hw_base + 0x14)
-#define TIMER_BGLOAD(hw_base)            __REG32(hw_base + 0x18)
+#define TIMER_INTCLR(hw_base)   __REG32(hw_base + 0x0c)
+#define TIMER_RIS(hw_base)      __REG32(hw_base + 0x10)
+#define TIMER_MIS(hw_base)      __REG32(hw_base + 0x14)
+#define TIMER_BGLOAD(hw_base)   __REG32(hw_base + 0x18)
 
-#define SYS_CTRL                         __REG32(REALVIEW_SCTL_BASE)
+#define SYS_CTRL                __REG32(REALVIEW_SCTL_BASE)
 
-#define TIMER_HW_BASE                  REALVIEW_TIMER2_3_BASE
+#define TIMER_HW_BASE           REALVIEW_TIMER2_3_BASE
 
 void rt_hw_timer_ack(void)
 {
@@ -74,7 +74,7 @@ int rt_hw_timer_init(void)
 
     return 0;
 }
-// INIT_BOARD_EXPORT(rt_hw_timer_init);
+INIT_BOARD_EXPORT(rt_hw_timer_init);
 
 /**
  * This function will initialize beaglebone board
