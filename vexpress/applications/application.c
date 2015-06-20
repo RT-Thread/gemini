@@ -17,17 +17,7 @@
 
 void init_thread(void* parameter)
 {
-    int i;
-    int count = 0;
     rt_components_init();
-
-    while (0)
-    {
-        rt_kprintf("count => %d\n", count ++);
-        
-        for (i = 0; i < 0x5ffffff; i++) ;
-        arm_gic_dump(0);
-    }
 }
 
 int rt_application_init()
