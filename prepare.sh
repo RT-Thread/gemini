@@ -1,10 +1,11 @@
 # download RT-Thread git code
 git clone https://github.com/RT-Thread/rt-thread.git
 # install 32bit environment
-sudo apt-get install lib32z1 astyle
+sudo apt-get update
+sudo apt-get update
+sudo apt-get -y install lib32z1 astyle
 # prepare toolchains and scons 
-sudo apt-get install scons
-sudo apt-get install qemu-system-arm
+sudo apt-get -y install scons qemu-system-arm
 
 # download toolchain
 if [ ! -f "arm-2012.09-63-arm-none-eabi-i686-pc-linux-gnu.tar.bz2" ];then
