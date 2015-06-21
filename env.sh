@@ -9,3 +9,4 @@ export KDIR=/home/coding/workspace/buildroot-2015.05/output/build/linux-custom
 export PATH=/home/coding/workspace/gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabi/bin:$PATH
 export CROSS_COMPILE=arm-linux-gnueabi-
 export ARCH=arm
+export MO_DIR=/home/coding/workspace/buildroot-2015.05/output/target/root
