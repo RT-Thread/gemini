@@ -1,0 +1,1 @@
+qemu-system-arm -M vexpress-a9 -cpu cortex-a9 -m 256M -kernel rtthread-vexpress.elf -nograpic -serial stdio -serial stdio

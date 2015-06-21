@@ -1,0 +1,1 @@
+qemu-system-arm -M vexpress-a9 -cpu cortex-a9 -smp cpus=2 -m 256M -kernel zImage -drive file=rootfs.ext2,if=sd -append "mem=248M console=ttyAMA0 root=/dev/mmcblk0" -dtb vexpress-v2p-ca9.dtb -serial vc -serial vc
