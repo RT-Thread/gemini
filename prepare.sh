@@ -5,7 +5,7 @@ sudo apt-get update
 sudo apt-get update
 sudo apt-get -y install lib32z1 astyle
 # prepare toolchains and scons 
-sudo apt-get -y install scons qemu-system-arm
+sudo apt-get -y install scons qemu-system-arm libncurses5-dev zip bc texinfo
 
 # download toolchain
 if [ ! -f "arm-2012.09-63-arm-none-eabi-i686-pc-linux-gnu.tar.bz2" ];then
@@ -25,7 +25,7 @@ wget -c http://www.buildroot.org/downloads/buildroot-2015.05.tar.bz2
 tar jxvf buildroot-2015.05.tar.bz2
 fi 
 
-if [ ! -f "gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabihf.tar.xz" ]; then
-wget -c https://releases.linaro.org/14.11/components/toolchain/binaries/arm-linux-gnueabihf/gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabihf.tar.xz
-tar Jxvf gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabihf.tar.xz
+if [ ! -f "gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabi.tar.xz" ]; then
+wget -c http://releases.linaro.org/14.11/components/toolchain/binaries/arm-linux-gnueabi/gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabi.tar.xz
+tar Jxvf gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabi.tar.xz
 fi
