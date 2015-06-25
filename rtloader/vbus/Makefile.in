@@ -1,0 +1,10 @@
+# User should define VBUS_DIR and setup the ccflags-y before including this file.
+# Append $(VBUS_OBJS) to the object lists of your module
+
+VBUS_OBJS := $(VBUS_DIR)/linux_driver.o $(VBUS_DIR)/vbus_chn0.o $(VBUS_DIR)/vbus_chnx.o $(VBUS_DIR)/prio_queue.o $(VBUS_DIR)/watermark_queue.o
+
+ifeq ($(CONFIG_ARM_GIC), y)
+	VBUS_OBJS += $(VBUS_DIR)/gic_emuint.o
+else
+	VBUS_OBJS += $(VBUS_DIR)/aintc_emuint.o
+endif
