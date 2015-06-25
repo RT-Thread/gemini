@@ -1,5 +1,7 @@
 # download RT-Thread git code
-git clone https://github.com/RT-Thread/rt-thread.git
+# https://github.com/RT-Thread/rt-thread.git
+
+git clone https://git.coding.net/RT-Thread/rt-thread.git
 
 # install 32bit environment
 sudo apt-get update
