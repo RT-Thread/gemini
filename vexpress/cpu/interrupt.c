@@ -17,6 +17,7 @@
 #include <rtthread.h>
 #include "realview.h"
 #include "gic.h"
+#include "cp15.h"
 
 #ifdef RT_USING_VMM
 #include <vmm.h>
@@ -38,7 +39,20 @@ extern int system_vectors;
 
 static void rt_hw_vector_init(void)
 {
-    rt_cpu_vector_set_base((unsigned int)&system_vectors);
+    int sctrl;
+    unsigned int *src = (unsigned int *)&system_vectors;
+
+    /* C12-C0 is only active when SCTLR.V = 0 */
+    asm volatile ("mrc p15, #0, %0, c1, c0, #0"
+                  :"=r" (sctrl));
+    sctrl &= ~(1 << 13);
+    asm volatile ("mcr p15, #0, %0, c1, c0, #0"
+                  :
+                  :"r" (sctrl));
+
+    asm volatile ("mcr p15, #0, %0, c12, c0, #0"
+                  :
+                  :"r" (src));
 }
 
 /**
@@ -110,6 +124,7 @@ rt_isr_handler_t rt_hw_interrupt_install(int vector, rt_isr_handler_t handler,
             isr_table[vector].handler = handler;
             isr_table[vector].param = param;
         }
+        arm_gic_set_cpu(0, vector, 1 << rt_cpu_get_smp_id());
     }
 
     return old_handler;

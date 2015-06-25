@@ -58,6 +58,7 @@ stack_top:
 /* reset entry */
 .globl _reset
 _reset:
+    bl      rt_cpu_mmu_disable
     /* set the cpu to SVC32 mode and disable interrupt */
     mrs     r0, cpsr
     bic     r0, r0, #0x1f
