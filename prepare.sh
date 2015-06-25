@@ -17,6 +17,9 @@ fi
 if [ ! -f "linux-3.18.16.tar.xz" ]; then
 wget -c https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.18.16.tar.xz
 tar Jxvf linux-3.18.16.tar.xz
+cd linux-3.18.16
+patch -p1 < ../rtthread_vbus.patch
+cd ..
 fi
 
 # download buildroot
