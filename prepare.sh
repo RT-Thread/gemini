@@ -1,34 +1,39 @@
 # download RT-Thread git code
 git clone https://github.com/RT-Thread/rt-thread.git
+
 # install 32bit environment
-sudo apt-get update
 sudo apt-get update
 sudo apt-get -y install lib32z1 astyle
 # prepare toolchains and scons 
 sudo apt-get -y install scons qemu-system-arm libncurses5-dev zip bc texinfo
 
-# download toolchain
-if [ ! -f "arm-2012.09-63-arm-none-eabi-i686-pc-linux-gnu.tar.bz2" ];then
-wget -c https://sourcery.mentor.com/public/gnu_toolchain/arm-none-eabi/arm-2012.09-63-arm-none-eabi-i686-pc-linux-gnu.tar.bz2
-tar jxvf arm-2012.09-63-arm-none-eabi-i686-pc-linux-gnu.tar.bz2
+# clone package files repo
+if [ ! -d "packages-files" ]; then
+git clone https://git.coding.net/RT-Thread/packages-files.git
+else
+cd packages-files
+git pull origin
+cd ..
 fi
 
-# download Linux 3.18.x
-if [ ! -f "linux-3.18.16.tar.xz" ]; then
-wget -c https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.18.16.tar.xz
-tar Jxvf linux-3.18.16.tar.xz
+if [ ! -d "arm-2012.09" ]; then
+tar jxvf packages-files/arm-2012.09-63-arm-none-eabi-i686-pc-linux-gnu.tar.bz2
+fi
+
+if [ ! -d "linux-3.18.16" ]; then
+tar Jxvf packages-files/linux-3.18.16.tar.xz
 cd linux-3.18.16
 patch -p1 < ../rtthread_vbus.patch
 cd ..
 fi
 
-# download buildroot
-if [ ! -f "buildroot-2015.05.tar.bz2" ]; then
-wget -c http://www.buildroot.org/downloads/buildroot-2015.05.tar.bz2
-tar jxvf buildroot-2015.05.tar.bz2
+if [ ! -d "buildroot-2015.05" ]; then
+tar jxvf packages-files/buildroot-2015.05.tar.bz2
+mkdir -p buildroot-2015.05/dl
+cp packages-files/dl/* buildroot-2015.05/dl
 fi 
 
-if [ ! -f "gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabi.tar.xz" ]; then
-wget -c http://releases.linaro.org/14.11/components/toolchain/binaries/arm-linux-gnueabi/gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabi.tar.xz
-tar Jxvf gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabi.tar.xz
+if [ ! -d "gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabi" ]; then
+tar Jxvf packages-files/gcc-linaro-4.9-2014.11-x86_64_arm-linux-gnueabi.tar.xz
 fi
+
