@@ -19,7 +19,7 @@
 // <integer name="IDLE_THREAD_STACK_SIZE" description="The stack size of idle thread" default="512" />
 #define IDLE_THREAD_STACK_SIZE	512
 // <section name="RT_DEBUG" description="Kernel Debug Configuration" default="true" >
-// #define RT_DEBUG
+#define RT_DEBUG
 // <integer name="RT_DEBUG_SCHEDULER" description="scheduler debug enable" default="0" />
 // #define RT_DEBUG_SCHEDULER  1
 // <bool name="RT_USING_OVERFLOW_CHECK" description="Thread stack over flow detect" default="true" />
@@ -116,13 +116,13 @@
 // <section name="RT_USING_DFS" description="Device file system" default="true" >
 // #define RT_USING_DFS
 // <bool name="DFS_USING_WORKDIR" description="Using working directory" default="true" />
-// #define DFS_USING_WORKDIR
+#define DFS_USING_WORKDIR
 // <integer name="DFS_FILESYSTEMS_MAX" description="The maximal number of mounted file system" default="4" />
 #define DFS_FILESYSTEMS_MAX	2
 // <integer name="DFS_FD_MAX" description="The maximal number of opened files" default="4" />
 #define DFS_FD_MAX	4
 // <bool name="RT_USING_DFS_ELMFAT" description="Using ELM FatFs" default="true" />
-#define RT_USING_DFS_ELMFAT
+// #define RT_USING_DFS_ELMFAT
 // <integer name="RT_DFS_ELM_USE_LFN" description="Support long file name" default="0">
 // <item description="LFN1">1</item>
 // <item description="LFN1">2</item>
@@ -135,12 +135,17 @@
 // <bool name="RT_USING_DFS_UFFS" description="Using UFFS" default="false" />
 // #define RT_USING_DFS_UFFS
 // <bool name="RT_USING_DFS_DEVFS" description="Using devfs for device objects" default="true" />
-// #define RT_USING_DFS_DEVFS
+#define RT_USING_DFS_DEVFS
 // <bool name="RT_USING_DFS_NFS" description="Using NFS v3 client file system" default="false" />
 // #define RT_USING_DFS_NFS
 // <string name="RT_NFS_HOST_EXPORT" description="NFSv3 host export" default="192.168.1.5:/" />
 #define RT_NFS_HOST_EXPORT	"192.168.1.5:/"
 // </section>
+
+// <bool name="RT_USING_VBUS" description="Using virtual bus for inter-process communication" default="true" />
+#define RT_USING_VBUS
+
+#define RT_USING_LOGTRACE
 
 // </RDTConfigurator>
 
