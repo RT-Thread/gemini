@@ -1,0 +1,183 @@
+Only in linux/arch/arm/include: generated
+diff -ur linux-3.18.16/arch/arm/kernel/smp.c linux/arch/arm/kernel/smp.c
+--- linux-3.18.16/arch/arm/kernel/smp.c	2015-06-15 00:19:31.000000000 +0800
++++ linux/arch/arm/kernel/smp.c	2015-06-25 14:51:08.940994975 +0800
+@@ -62,6 +62,8 @@
+  * boot "holding pen"
+  */
+ volatile int pen_release = -1;
++typedef int (*smp_ipi_handler_t)(int irq, void *devid);
++static smp_ipi_handler_t _smp_ipi_handler = NULL;
+ 
+ enum ipi_msg_type {
+ 	IPI_WAKEUP,
+@@ -464,6 +466,12 @@
+ 	__smp_cross_call(target, ipinr);
+ }
+ 
++void smp_set_ipi_handler(smp_ipi_handler_t handler)
++{
++	_smp_ipi_handler = handler;
++}
++EXPORT_SYMBOL(smp_set_ipi_handler);
++
+ void show_ipi_list(struct seq_file *p, int prec)
+ {
+ 	unsigned int cpu, i;
+@@ -505,6 +513,12 @@
+ 	smp_cross_call(cpumask_of(cpu), IPI_CALL_FUNC_SINGLE);
+ }
+ 
++void arch_send_ipi(int cpu, int ipi)
++{
++	smp_cross_call(cpumask_of(cpu), ipi);
++}
++EXPORT_SYMBOL(arch_send_ipi);
++
+ #ifdef CONFIG_IRQ_WORK
+ void arch_irq_work_raise(void)
+ {
+@@ -624,8 +638,15 @@
+ 		break;
+ 
+ 	default:
+-		printk(KERN_CRIT "CPU%u: Unknown IPI message 0x%x\n",
+-		       cpu, ipinr);
++		if (_smp_ipi_handler != NULL)
++		{
++			irq_enter();
++			_smp_ipi_handler(ipinr, NULL);
++			irq_exit();
++		}
++
++		// printk(KERN_CRIT "CPU%u: Unknown IPI message 0x%x\n",
++		//       cpu, ipinr);
+ 		break;
+ 	}
+ 
+diff -ur linux-3.18.16/arch/arm/mach-vexpress/hotplug.c linux/arch/arm/mach-vexpress/hotplug.c
+--- linux-3.18.16/arch/arm/mach-vexpress/hotplug.c	2015-06-15 00:19:31.000000000 +0800
++++ linux/arch/arm/mach-vexpress/hotplug.c	2015-06-25 14:25:50.624938623 +0800
+@@ -14,6 +14,7 @@
+ 
+ #include <asm/smp_plat.h>
+ #include <asm/cp15.h>
++#include <asm/io.h>
+ 
+ static inline void cpu_enter_lowpower(void)
+ {
+@@ -87,8 +88,15 @@
+  */
+ void __ref vexpress_cpu_die(unsigned int cpu)
+ {
++	extern u32 vexpress_flags_get(void);
++	typedef void (*func_t)(void);
++
++	u32 boot_addr;
+ 	int spurious = 0;
+ 
++	boot_addr = vexpress_flags_get();
++	pen_release = cpu_logical_map(cpu);
++
+ 	/*
+ 	 * we're ready for shutdown now, so do it
+ 	 */
+@@ -100,6 +108,18 @@
+ 	 * coherency, and then restore interrupts
+ 	 */
+ 	cpu_leave_lowpower();
++	pr_info("0x%08x - 0x%08x\n", boot_addr, vexpress_flags_get());
++
++	//if (boot_addr != vexpress_flags_get())
++	{
++		func_t func;
++
++		pr_info("come back from die!\n");
++		func = (func_t)__phys_to_virt(0x6FB00000);
++
++		asm volatile("  cpsid i\n" :::);
++		func();
++	}
+ 
+ 	if (spurious)
+ 		pr_warn("CPU%u: %u spurious wakeup calls\n", cpu, spurious);
+diff -ur linux-3.18.16/arch/arm/mach-vexpress/platsmp.c linux/arch/arm/mach-vexpress/platsmp.c
+--- linux-3.18.16/arch/arm/mach-vexpress/platsmp.c	2015-06-15 00:19:31.000000000 +0800
++++ linux/arch/arm/mach-vexpress/platsmp.c	2015-06-25 14:26:12.880939449 +0800
+@@ -25,6 +25,20 @@
+ 
+ #include "core.h"
+ 
++int vexpress_cpun_start(u32 address, int cpu)
++{
++	extern u32 vexpress_flags_get(void);
++
++	vexpress_flags_set((address));
++	flush_cache_all();
++    smp_wmb();
++
++    arch_send_wakeup_ipi_mask(cpumask_of(cpu));
++
++    return 0;
++}
++EXPORT_SYMBOL(vexpress_cpun_start);
++
+ /*
+  * Initialise the CPU possible map early - this describes the CPUs
+  * which may be present or become present in the system.
+diff -ur linux-3.18.16/arch/arm/mm/init.c linux/arch/arm/mm/init.c
+--- linux-3.18.16/arch/arm/mm/init.c	2015-06-15 00:19:31.000000000 +0800
++++ linux/arch/arm/mm/init.c	2015-06-25 14:30:29.412948970 +0800
+@@ -310,6 +310,10 @@
+ 	}
+ #endif
+ 
++	/* reserve RT-Thread space */
++	{
++		memblock_reserve(0x6F800000, 8 * 1024 * 1024);
++	}
+ 	arm_mm_memblock_reserve();
+ 
+ 	/* reserve any platform specific memblock areas */
+diff -ur linux-3.18.16/arch/arm/mm/mmu.c linux/arch/arm/mm/mmu.c
+--- linux-3.18.16/arch/arm/mm/mmu.c	2015-06-15 00:19:31.000000000 +0800
++++ linux/arch/arm/mm/mmu.c	2015-06-25 14:30:02.556947973 +0800
+@@ -1299,6 +1299,19 @@
+ 	map.type = MT_LOW_VECTORS;
+ 	create_mapping(&map);
+ 
++	/* create a executable mapping */
++	{
++		#define RTT_BASE		0x6F800000
++		#define RTT_SIZE		(8 * 1024 * 1024)
++
++		map.pfn = __phys_to_pfn(RTT_BASE);
++		map.virtual = __phys_to_virt(RTT_BASE);
++		map.length = RTT_SIZE;
++		map.type = MT_MEMORY_RWX;
++
++		create_mapping(&map);
++	}
++
+ 	/*
+ 	 * Ask the machine support to map in the statically mapped devices.
+ 	 */
+diff -ur linux-3.18.16/drivers/mfd/vexpress-sysreg.c linux/drivers/mfd/vexpress-sysreg.c
+--- linux-3.18.16/drivers/mfd/vexpress-sysreg.c	2015-06-15 00:19:31.000000000 +0800
++++ linux/drivers/mfd/vexpress-sysreg.c	2015-06-23 17:36:43.558950261 +0800
+@@ -84,6 +84,15 @@
+ 	writel(data, vexpress_sysreg_base() + SYS_FLAGSSET);
+ }
+ 
++u32 vexpress_flags_get(void)
++{
++    u32 value;
++    
++    value = readl(vexpress_sysreg_base() + SYS_FLAGSSET);
++    
++    return value;
++}
++
+ unsigned int vexpress_get_mci_cardin(struct device *dev)
+ {
+ 	return readl(vexpress_sysreg_base() + SYS_MCI) & SYS_MCI_CARDIN;
